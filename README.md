@@ -1,5 +1,5 @@
 # AI-Hallucination-Risk-Dashboard
-Overview
+## Overview
 
 As AI tools become embedded in business decision-making, a critical risk emerges: AI hallucinations — confident but incorrect or incomplete insights influencing high-impact decisions.
 
