@@ -20,7 +20,7 @@ Business and revenue exposure due to risky AI usage
 
 The outcome is an AI Risk Scoring framework that leadership teams can use to define safe vs unsafe AI usage boundaries.
 
-## What Is AI Governance? (Business View)
+## What Is AI Governance?
 
 AI Governance refers to the frameworks, policies, and controls that ensure AI systems are used responsibly, safely, and in alignment with business objectives.
 
