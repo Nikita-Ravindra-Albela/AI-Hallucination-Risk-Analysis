@@ -1,7 +1,6 @@
 ## AI Hallucination Risk Analysis — SQL Query Explanation
 
-This document explains **each SQL query** used in the *AI Hallucination Risk & Business Impact Analysis* project. The goal is to clearly show **what each query does, why it exists, and what business insight it enables**. This file can be used for **GitHub documentation, interviews, or portfolio walkthroughs**.
-
+This document explains **each SQL query** used in the *AI Hallucination Risk & Business Impact Analysis* project. The goal is to clearly show **what each query does, why it exists, and what business insight it enables**.
 ---
 
 ## Core View Creation: `v_ai_hallucination`
