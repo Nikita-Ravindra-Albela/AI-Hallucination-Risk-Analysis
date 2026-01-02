@@ -1,0 +1,297 @@
+## AI Hallucination Risk Analysis — SQL Query Explanation
+
+This document explains **each SQL query** used in the *AI Hallucination Risk & Business Impact Analysis* project. The goal is to clearly show **what each query does, why it exists, and what business insight it enables**. This file can be used for **GitHub documentation, interviews, or portfolio walkthroughs**.
+
+---
+
+## Core View Creation: `v_ai_hallucination`
+
+```sql
+CREATE VIEW v_ai_hallucination AS
+SELECT
+    query_id,
+    department,
+    decision_type,
+    decision_impact_value,
+    ai_confidence_score,
+    date,
+    CASE
+        WHEN ai_confidence_score >= 0.80
+             AND decision_impact_value >= 1000000
+        THEN 0
+        ELSE 1
+    END AS is_factually_correct,
+    CASE
+        WHEN decision_type = 'strategic' THEN 2
+        ELSE 0
+    END AS missing_assumptions_count,
+    CASE
+        WHEN ai_confidence_score >= 0.75
+             AND (
+                 (
+                     ai_confidence_score >= 0.80
+                     AND decision_impact_value >= 1000000
+                 )
+                 OR decision_type = 'strategic'
+             )
+        THEN 1
+        ELSE 0
+    END AS hallucination_flag
+FROM ai_queries_data;
+```
+
+###  Purpose
+
+This view acts as the **single source of truth** for all downstream analysis.
+
+###  Business Logic
+
+* **Factual correctness** is simulated for high-confidence, high-impact decisions
+* **Missing assumptions** are assumed higher for strategic decisions
+* **Hallucination** is defined from a *business-risk lens*, not a technical one
+
+### Outcome
+
+Each AI usage record is classified as **hallucinated (1) or safe (0)** based on governance-oriented rules.
+
+---
+
+##  Hallucination Flag Validation
+
+```sql
+SELECT
+    hallucination_flag,
+    COUNT(*) AS records
+FROM v_ai_hallucination
+GROUP BY hallucination_flag;
+```
+
+### Purpose
+
+Ensures the hallucination logic is working correctly by confirming that both `0` and `1` values exist.
+
+---
+
+## Overall Hallucination Rate
+
+```sql
+SELECT
+    AVG(hallucination_flag * 1.0) AS hallucination_rate
+FROM v_ai_hallucination;
+```
+
+### Purpose
+
+Calculates the **percentage of AI interactions that pose business hallucination risk**.
+
+### Why AVG?
+
+Since `hallucination_flag` is binary (0/1), its average directly represents a rate.
+
+---
+
+## Overconfidence Index
+
+```sql
+SELECT
+    AVG(ai_confidence_score) AS overconfidence_index
+FROM v_ai_hallucination
+WHERE is_factually_correct = 0;
+```
+
+### Purpose
+
+Measures how confident AI responses are **when they are wrong**.
+
+### Business Insight
+
+High overconfidence increases the likelihood that decision-makers trust incorrect AI outputs.
+
+---
+
+## Assumption Gap Score
+
+```sql
+SELECT
+    AVG(missing_assumptions_count * 1.0 / 3) AS assumption_gap_score
+FROM v_ai_hallucination;
+```
+
+### Purpose
+
+Quantifies how often AI responses lack critical business assumptions.
+
+### Normalization
+
+Dividing by `3` standardizes the score to a 0–1 range for risk modeling.
+
+---
+
+## Composite AI Risk Score
+
+```sql
+SELECT
+    (
+        0.4 * AVG(hallucination_flag * 1.0)
+      + 0.3 * (
+            SELECT AVG(ai_confidence_score)
+            FROM v_ai_hallucination
+            WHERE is_factually_correct = 0
+        )
+      + 0.3 * AVG(missing_assumptions_count * 1.0 / 3)
+    ) * 100 AS ai_risk_score
+FROM v_ai_hallucination;
+```
+
+### Purpose
+
+Creates a **single executive-friendly AI Risk Score (0–100)**.
+
+### Weighting Logic
+
+* 40% → Wrong or risky outputs hurt most
+* 30% → Overconfidence increases adoption risk
+* 30% → Missing assumptions cause silent failures
+
+---
+
+## Hallucination Rate by Department
+
+```sql
+SELECT
+    department,
+    AVG(hallucination_flag * 1.0) * 100 AS hallucination_rate_pct
+FROM v_ai_hallucination
+GROUP BY department
+ORDER BY hallucination_rate_pct DESC;
+```
+
+### Purpose
+
+Identifies departments where AI usage is most risky.
+
+---
+
+## Strategic vs Operational Risk Split
+
+```sql
+SELECT
+    decision_type,
+    AVG(hallucination_flag * 1.0) * 100 AS hallucination_rate_pct
+FROM v_ai_hallucination
+GROUP BY decision_type;
+```
+
+### Purpose
+
+Evaluates whether **strategic decisions** are more vulnerable to AI hallucinations than operational ones.
+
+---
+
+## Hallucination Rate by Impact Bucket
+
+```sql
+SELECT
+    impact_bucket,
+    COUNT(*) AS total_decisions,
+    AVG(hallucination_flag * 1.0) * 100 AS hallucination_rate_pct
+FROM (
+    SELECT
+        CASE
+            WHEN decision_impact_value < 500000 THEN '< ₹5L'
+            WHEN decision_impact_value BETWEEN 500000 AND 1000000 THEN '₹5L–₹10L'
+            WHEN decision_impact_value BETWEEN 1000000 AND 2000000 THEN '₹10L–₹20L'
+            ELSE '> ₹20L'
+        END AS impact_bucket,
+        hallucination_flag
+    FROM v_ai_hallucination
+) t
+GROUP BY impact_bucket
+ORDER BY hallucination_rate_pct DESC;
+```
+
+### Purpose
+
+Shows how hallucination risk **increases with decision impact**, highlighting high-stakes danger zones.
+
+---
+
+## Revenue at Risk Calculation
+
+```sql
+SELECT
+    SUM(decision_impact_value * hallucination_flag) AS revenue_at_risk
+FROM v_ai_hallucination;
+```
+
+### Purpose
+
+Translates AI hallucinations into **financial exposure**, enabling leadership-level conversations.
+
+---
+
+## Monthly Hallucination Trend
+
+```sql
+SELECT
+    DATEADD(MONTH, DATEDIFF(MONTH, 0, date), 0) AS month,
+    AVG(hallucination_flag * 1.0) * 100 AS hallucination_rate_pct
+FROM v_ai_hallucination
+GROUP BY DATEADD(MONTH, DATEDIFF(MONTH, 0, date), 0)
+ORDER BY month;
+```
+
+### Purpose
+
+Tracks whether AI risk is **increasing or stabilizing over time**.
+
+---
+
+## High-Risk “Do Not Use AI” Zones
+
+```sql
+SELECT
+    department,
+    decision_type,
+    COUNT(*) AS risky_decisions,
+    SUM(decision_impact_value) AS total_value
+FROM v_ai_hallucination
+WHERE hallucination_flag = 1
+  AND decision_impact_value >= 1000000
+  AND ai_confidence_score >= 0.80
+GROUP BY department, decision_type
+ORDER BY total_value DESC;
+```
+
+### Purpose
+
+Identifies **decision categories where AI usage should be restricted or reviewed**.
+
+---
+
+## Final Sanity Check
+
+```sql
+SELECT
+    COUNT(*) AS total_rows,
+    SUM(hallucination_flag) AS hallucinated_rows,
+    AVG(hallucination_flag * 1.0) AS hallucination_rate
+FROM v_ai_hallucination;
+```
+
+### Purpose
+
+Validates the end-to-end pipeline before dashboarding or reporting.
+
+---
+
+## Summary
+
+These SQL queries together form a **complete AI governance analytics layer**, enabling:
+
+* Risk measurement
+* Business impact quantification
+* Policy simulation readiness
+* Executive decision support
+
+This SQL design mirrors how real organizations operationalize **AI risk and governance** using analytics.
