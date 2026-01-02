@@ -1,75 +1,145 @@
 # AI-Hallucination-Risk-Dashboard
 ## Overview
 
-As AI tools become embedded in business decision-making, a critical risk emerges: AI hallucinations — confident but incorrect or incomplete insights influencing high-impact decisions.
+As organizations increasingly adopt AI tools for business decision-making, a critical risk emerges: AI hallucinations — confident but incorrect or incomplete outputs that can silently influence high-impact decisions.
 
-This project approaches the problem from an AI governance and business analytics perspective, answering:
+This project focuses on AI Governance from a business perspective, not a technical one.
+Instead of asking “Is the AI model accurate?”, it asks:
 
-When does AI become dangerous for business decisions?
+“When does AI become dangerous for business decisions?”
 
-Instead of evaluating AI models technically, the analysis quantifies business risk, revenue exposure, and governance gaps caused by AI usage.
-
-## AI Governance
-
-AI Governance ensures AI is used responsibly, safely, and within defined business boundaries.
-
-From a business lens, it addresses:
-
-Which decisions should AI influence?
-
-Where is human review mandatory?
-
-How much revenue is exposed to AI errors?
-
-This project demonstrates how data analysts can support AI governance without building AI models.
-
-## Objective
-
-To measure and visualize:
+Using simulated enterprise-scale data, this analysis quantifies:
 
 AI hallucination risk
 
-Overconfidence in AI outputs
+Overconfidence in AI-generated insights
 
-Business and revenue exposure
+Business and revenue exposure due to risky AI usage
 
-Impact of governance policies on AI risk
+The outcome is an AI Risk Scoring framework that leadership teams can use to define safe vs unsafe AI usage boundaries.
+
+## What Is AI Governance? (Business View)
+
+AI Governance refers to the frameworks, policies, and controls that ensure AI systems are used responsibly, safely, and in alignment with business objectives.
+
+From a business analytics lens, AI governance answers questions like:
+
+Should AI be used for strategic decisions?
+
+Which decisions require human review?
+
+How much revenue is exposed to AI errors?
+
+Where does AI confidence exceed reliability?
+
+This project demonstrates how data analysts can actively contribute to AI governance, even without building AI models themselves.
+
+## Problem Statement
+
+AI tools are increasingly used across departments such as Finance, Sales, HR, and Operations.
+
+However:
+
+AI responses often sound confident
+
+Decision-makers may not validate assumptions
+
+High-impact decisions may rely on flawed AI insights
+
+This project measures and visualizes AI hallucination risk across business decisions.
 
 ## Dataset
 
-Synthetic enterprise data (50K records)
+Type: Synthetic enterprise data
 
-Simulates AI usage across Finance, Sales, HR, and Operations
+Rows: 50K AI usage records
 
-Includes decision impact values, AI confidence scores, and decision types
+Key fields:
 
-Synthetic data enables realistic risk simulations not available in public datasets.
+Department
 
-## Hallucination Definition 
+Decision type (Strategic / Operational)
 
-An AI response is considered a hallucination when:
+Decision impact value (₹)
 
-The AI is highly confident and
+AI confidence score
 
-The response is factually incorrect or
+Date of decision
+
+Synthetic data was intentionally used to:
+
+Avoid template datasets
+
+Enable realistic risk simulations
+
+Model scenarios not commonly tracked in organizations
+
+🧩 Business Definition of Hallucination
+
+This project intentionally avoids a technical definition.
+
+Hallucination (Business Definition):
+
+An AI response is considered a hallucination if:
+
+The AI is highly confident AND
+
+The answer is factually incorrect OR
 
 Key business assumptions are missing
 
-This allows risk even when outputs are partially correct.
+This allows risk to exist even when the AI is partially correct.
 
 ## Methodology
+1️. Data Modeling (SQL)
 
-SQL: Built a canonical view (v_ai_hallucination) to define business-level hallucination logic
+Created a canonical SQL view: v_ai_hallucination
 
-Risk Metrics: Hallucination Rate, Overconfidence Index, Assumption Gap Score
+Simulated:
 
-AI Risk Score: Weighted composite metric (0–100)
+Factual correctness
 
-Segmentation: Risk by department, decision type, impact bucket, and time
+Missing assumptions
 
-Policy Simulation: Human review for strategic decisions above ₹10L
+Derived a business-level hallucination_flag
 
-## Dashboard Highlights
+2️. Core Risk Metrics
+
+Hallucination Rate
+
+Overconfidence Index
+
+Assumption Gap Score
+
+All metrics were normalized and combined into a single AI Risk Score (0–100).
+
+3️. Risk Segmentation
+
+Risk was analyzed by:
+
+Department
+
+Decision type (Strategic vs Operational)
+
+Decision impact buckets
+
+Time trends
+
+4️. Policy Simulation (What-If Analysis)
+
+Simulated a governance policy:
+
+“Introduce mandatory human review for strategic decisions above ₹10L.”
+
+Measured:
+
+Reduction in hallucination exposure
+
+Reduction in revenue at risk
+
+## Dashboard Highlights (Power BI)
+
+Key dashboard sections:
 
 Overall AI Hallucination Rate
 
@@ -79,44 +149,76 @@ Revenue at Risk (₹)
 
 High-risk departments and decisions
 
-Before vs After policy simulation
+Impact bucket analysis
 
-Designed for executive-level decision-making, not just reporting.
+Before vs After governance policy simulation
+
+This dashboard is designed for executive decision-making, not just reporting.
 
 ## Key Insights
 
 ~35% of AI-influenced decisions showed hallucination risk
 
-Strategic, high-impact decisions carried the highest exposure
+High-impact strategic decisions had the highest risk concentration
 
-Finance and Sales contributed most to revenue at risk
+Finance and Sales contributed the majority of revenue exposure
 
-A ₹10L human-review policy reduced hallucination exposure by ~80–90%
+Introducing a ₹10L human-review policy reduced hallucination exposure by ~80–90%
 
-Significant reduction in simulated revenue risk
+Potential risk reduction value exceeded ₹200+ Cr (simulated)
 
-## Tools & Skills
+## Tools & Skills Used
 
-SQL (SQL Server) – Views, CASE logic, risk aggregation
+SQL (SQL Server)
 
-Python – Risk modeling, scenario simulation
+Views
 
-Power BI – DAX measures, policy simulations, dashboards
+CASE logic
 
-Business Analytics – Metric design, AI governance thinking
+Risk aggregation
 
-## Why This Project Stands Out
+Python
 
-Focuses on AI governance and risk, not model accuracy
+Risk modeling
 
-Quantifies business impact, not just analytics outputs
+Scenario simulation
 
-Demonstrates decision-intelligence and policy thinking
+Metric validation
 
-Highly relevant to modern data and analytics roles
+Power BI
 
-## Author
+DAX measures
+
+Policy simulation
+
+Executive dashboards
+
+Business Analytics
+
+Metric design
+
+Risk modeling
+
+AI governance thinking
+
+## How This Project Can Be Extended
+
+Add real AI output evaluation data
+
+Introduce department-specific risk thresholds
+
+Build automated AI usage policy alerts
+
+Integrate with MLOps or AI monitoring systems
+
+## About the Author
 
 Nikita Albela
 MBA (HR & Business Analytics)
-Aspiring Data Analyst focused on business-first analytics, risk modeling, and AI governance.
+Aspiring Data Analyst with a strong focus on:
+
+Business-first analytics
+
+Risk modeling
+
+AI governance & decision intelligence
