@@ -45,7 +45,7 @@ Includes decision impact values, AI confidence scores, and decision types
 
 Synthetic data enables realistic risk simulations not available in public datasets.
 
-🧩 Business Definition of Hallucination
+## Hallucination Definition 
 
 An AI response is considered a hallucination when:
 
