@@ -76,7 +76,7 @@ Enable realistic risk simulations
 
 Model scenarios not commonly tracked in organizations
 
-🧩 Business Definition of Hallucination
+## Definition of Hallucination
 
 This project intentionally avoids a technical definition.
 
