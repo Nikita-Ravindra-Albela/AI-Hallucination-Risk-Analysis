@@ -142,7 +142,7 @@ Reduction in revenue at risk
 ## Dashboard Highlights (Power BI)
 
 Key dashboard sections:
-
+ 
 Overall AI Hallucination Rate
 
 AI Risk Score - 48.47% (48% risk of AI generated insights on business decision.)
